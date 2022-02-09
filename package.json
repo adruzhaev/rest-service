@@ -1,0 +1,36 @@
+{
+  "name": "rest-api",
+  "version": "1.0.0",
+  "description": "building rest service withing epam node.js course",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon src/app.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-personal:adruzhaev/rest-api.git"
+  },
+  "keywords": [
+    "epam",
+    "nodejs"
+  ],
+  "author": "Andrei Druzhaev",
+  "license": "ISC",
+  "dependencies": {
+    "express": "4.17.2",
+    "nodemon": "2.0.15"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.17.0",
+    "@babel/core": "7.17.2",
+    "@babel/eslint-parser": "7.17.0",
+    "@babel/preset-env": "7.16.11",
+    "@types/express": "4.17.13",
+    "@typescript-eslint/eslint-plugin": "5.11.0",
+    "@typescript-eslint/parser": "5.11.0",
+    "eslint": "8.8.0",
+    "ts-node": "10.5.0"
+  }
+}
