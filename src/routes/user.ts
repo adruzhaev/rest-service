@@ -17,6 +17,13 @@ export const user = (app: Router, service: UserService) => {
     });
 
     router.get('/', (req: Request, res: Response) => {
+        const { login, limit } = req.query;
+
+        if (login && limit) {
+            const limitedUsers = service.getAutoSuggestUsers(login as string, limit as string);
+            return res.status(HttpCode.OK).json(limitedUsers);
+        }
+
         const users = service.getAll();
         return res.status(HttpCode.OK).json(users);
     });
