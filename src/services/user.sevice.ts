@@ -18,7 +18,7 @@ export class UserService {
     }
 
     getOne(id: string) {
-        return this.users.find(user => user.id === id);
+        return this.users.find(user => user.id === id && !user.isDeleted);
     }
 
     getAll() {
