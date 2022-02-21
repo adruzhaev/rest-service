@@ -5,7 +5,9 @@ export class UserService {
     users: IUser[];
 
     constructor(users: IUser[]) {
-        this.users = users;
+        this.users = users.map(userService => {
+            return Object.assign({}, { id: userService.id, age: userService.age, login: userService.login, password: userService.password });
+        });
     }
 
     create(user: IUser) {
