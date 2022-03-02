@@ -4,7 +4,7 @@
   "description": "building rest service withing epam node.js course",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon src/main.ts",
+    "start": "nodemon",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
