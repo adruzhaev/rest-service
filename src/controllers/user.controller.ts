@@ -1,16 +1,18 @@
 import * as Joi from 'joi';
 import { Request, Response } from 'express';
-import { UserService } from '../services/user.sevice';
+import { UserService } from '../services/user.service';
 import { HttpCode } from '../util/const';
 import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
 import { IUserController } from './user.controller.interface';
 import { BaseController } from '../common/base.controller';
+import { toResponse } from '../common/user.response';
+import { IUser } from '../services/user.interface';
 
 const querySchema = Joi.object({
     login: Joi.string().required(),
     password: Joi.string().regex(/^[a-z0-9]+$/).required(),
     age: Joi.number().min(4).max(130).required(),
-    isDeleted: Joi.boolean().required()
+    deletedAt: Joi.boolean()
 });
 
 export class UserController extends BaseController implements IUserController {
@@ -53,44 +55,45 @@ export class UserController extends BaseController implements IUserController {
         ]);
     }
 
-    getAllUsers(req: Request, res: Response) {
+    async getAllUsers(req: Request, res: Response) {
         const { login, limit } = req.query;
 
-        if (login && limit) {
-            const limitedUsers = this.userService.getAutoSuggestUsers(login as string, limit as string);
+        if (limit && login) {
+            const limitedUsers = (await this.userService.getAutoSuggestUsers(login as string, limit as string))
+                .map(user => toResponse(user));
             return res.status(HttpCode.OK).json(limitedUsers);
         }
 
-        const users = this.userService.getAll();
+        const users = (await this.userService.getAll()).map(user => toResponse(user));
         return res.status(HttpCode.OK).json(users);
     }
 
-    getOneUser(req: Request, res: Response) {
+    async getOneUser(req: Request, res: Response) {
         const { id } = req.params;
-        const oneUser = this.userService.getOne(id);
-        return res.status(HttpCode.OK).json(oneUser);
+        const oneUser = await this.userService.getOne(id);
+        return res.status(HttpCode.OK).json(toResponse(oneUser as IUser));
     }
 
-    createUser(req: Request, res: Response) {
-        const users = this.userService.create(req.body);
-        return res.status(HttpCode.CREATED).json(users);
+    async createUser(req: Request, res: Response) {
+        const users = await this.userService.create(req.body);
+        return res.status(HttpCode.CREATED).json(toResponse(users as IUser));
     }
 
-    updateUser(req: Request, res: Response) {
+    async updateUser(req: Request, res: Response) {
         const { id } = req.params;
-        const existedUser = this.userService.getOne(id);
+        const existedUser = await this.userService.getOne(id);
 
         if (!existedUser) {
             return res.status(HttpCode.NOT_FOUND).send('User is not found');
         }
 
-        const updatedUser = this.userService.update(id, req.body);
+        const updatedUser = await this.userService.update(id, req.body);
         return res.status(HttpCode.OK).json(updatedUser);
     }
 
-    deleteUser(req: Request, res: Response) {
+    async deleteUser(req: Request, res: Response) {
         const { id } = req.params;
-        const deletedUser = this.userService.delete(id);
+        const deletedUser = await this.userService.delete(id);
 
         if (!deletedUser) {
             return res.status(HttpCode.NOT_FOUND).send('User is not found');

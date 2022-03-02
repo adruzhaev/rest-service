@@ -3,5 +3,5 @@ CREATE TABLE Users(
     login VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     age INTEGER NOT NULL,
-    isDeleted BOOLEAN
+    deletedAt DATE DEFAULT NULL
 );

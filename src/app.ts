@@ -1,7 +1,6 @@
 import express, { Express } from 'express';
 import { Server } from 'http';
 import { UserController } from './controllers/user.controller';
-import { json } from 'body-parser';
 
 export class App {
     app: Express;
@@ -15,7 +14,7 @@ export class App {
         this.userController = userController;
     }
 
-    useRoutes() {
+    async useRoutes() {
         this.app.use('/users', this.userController.router);
     }
 
