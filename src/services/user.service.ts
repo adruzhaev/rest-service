@@ -29,13 +29,7 @@ export class UserService {
     }
 
     async getAutoSuggestUsers(loginSubstring: string, limit: string) {
-        return await this.userRepository.find({
-            take: Number(limit),
-            where: { login: Like(`%${loginSubstring}%`) },
-            order: {
-                login: 'ASC'
-            }
-        });
+        return await this.userRepository.getAutoSuggestUsers(loginSubstring, limit);
     }
 
     async update(id: any, user: IUser) {
