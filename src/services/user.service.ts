@@ -21,7 +21,7 @@ export class UserService {
     }
 
     async getOne(id: string) {
-        return await this.userRepository.findOne({ where: { id } });
+        return await this.userRepository.getOne(id);
     }
 
     async getAll() {
