@@ -1,17 +1,31 @@
-import express, { Router } from 'express';
-import { user } from './routes/user';
-import { UserService } from './services/user.sevice';
-import { mockData } from './util/mock-data';
+import express, { Express } from 'express';
+import { Server } from 'http';
+import { UserController } from './controllers/user.controller';
 
-const port = 8000;
-const app = express();
-const routes = Router();
+export class App {
+    app: Express;
+    port: number;
+    server: Server;
+    userController: UserController;
 
-user(routes, new UserService(mockData));
+    constructor(userController: UserController) {
+        this.app = express();
+        this.port = 8000;
+        this.userController = userController;
+    }
 
-app.use(express.json());
-app.use('', routes);
+    async useRoutes() {
+        this.app.use('/users', this.userController.router);
+    }
 
-app.listen(port, () => {
-    console.log(`Server is started on port: ${port}`);
-});
+    useMiddlewares() {
+        this.app.use(express.json());
+    }
+
+    public async init() {
+        this.useMiddlewares();
+        this.useRoutes();
+        this.server = this.app.listen(this.port);
+        console.log(`Server is started on port: ${this.port}`);
+    }
+}
