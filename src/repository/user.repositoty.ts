@@ -16,8 +16,4 @@ export class UserRepository extends Repository<User> {
     async getOne(id: string) {
         return await this.findOne({ where: { id } });
     }
-
-    // async addUsersToGroup(groupId: string, userId: string) {
-    //     return await this
-    // }
 }
