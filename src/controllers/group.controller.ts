@@ -47,6 +47,11 @@ export class GroupController extends BaseController implements IGroupController 
                 path: '/:id',
                 method: 'delete',
                 func: this.deleteGroup
+            },
+            {
+                path: '/addUsersToGroup',
+                method: 'post',
+                func: this.addUsersToGroup
             }
         ]);
     }
@@ -88,5 +93,12 @@ export class GroupController extends BaseController implements IGroupController 
         }
 
         return res.status(HttpCode.OK).json(deletedGroup);
+    }
+
+    async addUsersToGroup(req: Request, res: Response) {
+        const { groupId, userIds } = req.body;
+
+        const group = await this.groupService.addUsersToGroup(groupId, userIds);
+        return res.status(HttpCode.CREATED).json(group);
     }
 }
