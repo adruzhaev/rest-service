@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { IGroup } from './group.interface';
 import { GroupRepository } from '../repository/group.repostitory';
-import { getConnection } from 'typeorm';
+import { getConnection, getManager } from 'typeorm';
 import { Group } from '../models/group.model';
 import { UserRepository } from '../repository/user.repositoty';
 
@@ -37,14 +37,18 @@ export class GroupService {
     }
 
     async addUsersToGroup(groupId: string, userIds: string[]) {
-        const users = await this.userRepository.findByIds(userIds);
-        const group = await this.groupRepository.findOne(groupId);
+        return await getManager().transaction(async (transactionalManager) => {
+            const userRepository = transactionalManager.getCustomRepository(UserRepository);
+            const groupRepository = transactionalManager.getCustomRepository(GroupRepository);
+            const group = await groupRepository.findOne(groupId);
+            const users = await userRepository.findByIds(userIds);
 
-        if (group) {
-            group.users = users;
-            return await this.groupRepository.save(group);
-        }
+            if (group) {
+                group.users = users;
+                return await transactionalManager.save(group);
+            }
 
-        return console.error('No groups!');
+            return console.error('No groups!');
+        });
     }
 }
