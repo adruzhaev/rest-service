@@ -4,6 +4,8 @@ import { GroupRepository } from '../repository/group.repostitory';
 import { getConnection, getManager } from 'typeorm';
 import { Group } from '../models/group.model';
 import { UserRepository } from '../repository/user.repositoty';
+import { HTTPError } from '../common/error.class';
+import { HttpCode } from '../util/const';
 
 export class GroupService {
     groups: IGroup[];
@@ -32,7 +34,7 @@ export class GroupService {
         const existedGroup = await this.groupRepository.getOne(id);
 
         if (!existedGroup) {
-            throw new Error('Group is not found');
+            throw new HTTPError(HttpCode.NOT_FOUND, 'Group is not found');
         }
 
         return await this.groupRepository.update(id, group);

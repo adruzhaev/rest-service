@@ -79,7 +79,6 @@ export class GroupController extends BaseController implements IGroupController 
             const updatedGroup = await this.groupService.update(id, req.body);
             return res.status(HttpCode.OK).json(updatedGroup);
         } catch (error) {
-            res.status(HttpCode.NOT_FOUND);
             return next(error);
         }
     }
