@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { GroupService } from '../services/group.service';
 import { HttpCode } from '../util/const';
 import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
@@ -72,16 +72,16 @@ export class GroupController extends BaseController implements IGroupController 
         return res.status(HttpCode.CREATED).json(group);
     }
 
-    async updateGroup(req: Request, res: Response) {
+    async updateGroup(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params;
-        const existedGroup = await this.groupService.getOne(id);
 
-        if (!existedGroup) {
-            return res.status(HttpCode.NOT_FOUND).send('Group is not found');
+        try {
+            const updatedGroup = await this.groupService.update(id, req.body);
+            return res.status(HttpCode.OK).json(updatedGroup);
+        } catch (error) {
+            res.status(HttpCode.NOT_FOUND);
+            return next(error);
         }
-
-        const updatedGroup = await this.groupService.update(id, req.body);
-        return res.status(HttpCode.OK).json(updatedGroup);
     }
 
     async deleteGroup(req: Request, res: Response) {

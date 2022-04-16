@@ -29,6 +29,12 @@ export class GroupService {
     }
 
     async update(id: any, group: IGroup) {
+        const existedGroup = await this.groupRepository.getOne(id);
+
+        if (!existedGroup) {
+            throw new Error('Group is not found');
+        }
+
         return await this.groupRepository.update(id, group);
     }
 
