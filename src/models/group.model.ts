@@ -14,11 +14,6 @@ export class Group {
     @Column('text', { array: true })
         permissions: Permission[];
 
-    // @ManyToMany(type => User, user => user.groups, {
-    //     cascade: true
-    // })
-    //     users: User[];
-
     @ManyToMany(() => User, {
         cascade: true
     })

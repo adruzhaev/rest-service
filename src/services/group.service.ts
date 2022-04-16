@@ -4,17 +4,14 @@ import { GroupRepository } from '../repository/group.repostitory';
 import { getConnection } from 'typeorm';
 import { Group } from '../models/group.model';
 import { UserRepository } from '../repository/user.repositoty';
-import { IUser } from './user.interface';
 
 export class GroupService {
     groups: IGroup[];
-    // users: IUser[];
     groupRepository: GroupRepository;
     userRepository: UserRepository;
 
     constructor(groups: IGroup[]) {
         this.groups = groups;
-        // this.users = users;
         this.groupRepository = getConnection().getCustomRepository(GroupRepository);
         this.userRepository = getConnection().getCustomRepository(UserRepository);
     }

@@ -57,7 +57,7 @@ export class GroupController extends BaseController implements IGroupController 
     }
 
     async getAllGroups(req: Request, res: Response) {
-        const groups = (await this.groupService.getAll()).map(group => group);
+        const groups = await this.groupService.getAll();
         return res.status(HttpCode.OK).json(groups);
     }
 
