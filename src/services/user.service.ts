@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { IUser } from './user.interface';
 import { UserRepository } from '../repository/user.repositoty';
-import { getConnection, Like } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { User } from '../models/user.model';
 
 export class UserService {

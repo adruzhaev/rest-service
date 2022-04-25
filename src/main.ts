@@ -2,9 +2,13 @@ import 'reflect-metadata';
 import { App } from './app';
 import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
-import { mockData } from './util/mock-data';
+import { GroupController } from './controllers/group.controller';
+import { GroupService } from './services/group.service';
+import { usersMockData } from './util/users-mock-data';
+import { groupsMockData } from './util/groups-mock-data';
 import { createConnection } from 'typeorm';
 import { User } from './models/user.model';
+import { Group } from './models/group.model';
 
 const bootstrap = async () => {
     await createConnection({
@@ -15,10 +19,10 @@ const bootstrap = async () => {
         password: 'new_password',
         database: 'andrew',
         synchronize: true,
-        entities: [User]
+        entities: [User, Group]
     });
 
-    const app = new App(new UserController(new UserService(mockData)));
+    const app = new App(new UserController(new UserService(usersMockData)), new GroupController(new GroupService(groupsMockData)));
     await app.init();
 };
 
