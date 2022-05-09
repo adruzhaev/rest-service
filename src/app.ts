@@ -2,6 +2,7 @@ import express, { Express } from 'express';
 import { Server } from 'http';
 import { UserController } from './controllers/user.controller';
 import { GroupController } from './controllers/group.controller';
+import { logger, winstonLogger } from './util/logger';
 
 export class App {
     app: Express;
@@ -24,12 +25,13 @@ export class App {
 
     useMiddlewares() {
         this.app.use(express.json());
+        this.app.use(logger);
     }
 
     public async init() {
         this.useMiddlewares();
         this.useRoutes();
         this.server = this.app.listen(this.port);
-        console.log(`Server is started on port: ${this.port}`);
+        winstonLogger.info(`Server is started on port: ${this.port}`);
     }
 }

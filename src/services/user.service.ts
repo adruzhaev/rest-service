@@ -3,6 +3,8 @@ import { IUser } from './user.interface';
 import { UserRepository } from '../repository/user.repositoty';
 import { getConnection } from 'typeorm';
 import { User } from '../models/user.model';
+import { HTTPError } from '../common/error.class';
+import { HttpCode } from '../constants/http-code';
 
 export class UserService {
     users: IUser[];
@@ -21,7 +23,13 @@ export class UserService {
     }
 
     async getOne(id: string) {
-        return await this.userRepository.getOne(id);
+        const existedUser = await this.userRepository.getOne(id);
+
+        if (!existedUser) {
+            throw new HTTPError(HttpCode.NOT_FOUND, 'User is not found');
+        }
+
+        return existedUser;
     }
 
     async getAll() {

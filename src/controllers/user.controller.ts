@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
-import { HttpCode } from '../util/const';
+import { HttpCode } from '../constants/http-code';
 import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
 import { IUserController } from './user.controller.interface';
 import { BaseController } from '../common/base.controller';

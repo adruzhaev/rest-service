@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import { NextFunction, Request, Response } from 'express';
 import { GroupService } from '../services/group.service';
-import { HttpCode } from '../util/const';
+import { HttpCode } from '../constants/http-code';
 import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
 import { IGroupController } from './group.controller.interface';
 import { BaseController } from '../common/base.controller';

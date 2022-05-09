@@ -5,7 +5,7 @@ import { getConnection, getManager } from 'typeorm';
 import { Group } from '../models/group.model';
 import { UserRepository } from '../repository/user.repositoty';
 import { HTTPError } from '../common/error.class';
-import { HttpCode } from '../util/const';
+import { HttpCode } from '../constants/http-code';
 
 export class GroupService {
     groups: IGroup[];
