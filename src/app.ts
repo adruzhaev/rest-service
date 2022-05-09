@@ -3,6 +3,7 @@ import { Server } from 'http';
 import { UserController } from './controllers/user.controller';
 import { GroupController } from './controllers/group.controller';
 import { logger, winstonLogger } from './util/logger';
+import { exceptionFilter } from './util/exception-filter';
 
 export class App {
     app: Express;
@@ -28,8 +29,13 @@ export class App {
         this.app.use(logger);
     }
 
+    useExceptionFilter() {
+        this.app.use(exceptionFilter);
+    }
+
     public async init() {
         this.useMiddlewares();
+        this.useExceptionFilter();
         this.useRoutes();
         this.server = this.app.listen(this.port);
         winstonLogger.info(`Server is started on port: ${this.port}`);
