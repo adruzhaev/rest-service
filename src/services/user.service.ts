@@ -41,10 +41,22 @@ export class UserService {
     }
 
     async update(id: any, user: IUser) {
+        const existedUser = await this.userRepository.getOne(id);
+
+        if (!existedUser) {
+            throw new HTTPError(HttpCode.NOT_FOUND, 'User is not found');
+        }
+
         return await this.userRepository.update(id, user);
     }
 
     async delete(id: string) {
+        const existedUser = await this.userRepository.getOne(id);
+
+        if (!existedUser) {
+            throw new HTTPError(HttpCode.NOT_FOUND, 'User is not found');
+        }
+
         return await this.userRepository.softDelete(id);
     }
 }
