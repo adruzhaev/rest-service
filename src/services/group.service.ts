@@ -41,6 +41,12 @@ export class GroupService {
     }
 
     async delete(id: string) {
+        const existedGroup = await this.groupRepository.getOne(id);
+
+        if (!existedGroup) {
+            throw new HTTPError(HttpCode.NOT_FOUND, 'Group is not found');
+        }
+
         return await this.groupRepository.delete(id);
     }
 
