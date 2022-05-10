@@ -39,5 +39,13 @@ export class App {
         this.useRoutes();
         this.server = this.app.listen(this.port);
         winstonLogger.info(`Server is started on port: ${this.port}`);
+
+        process.on('unhandledRejection', (error: Error) => {
+            winstonLogger.error(error.message);
+        });
+
+        process.on('uncaughtException', (error: Error) => {
+            winstonLogger.error(error.message);
+        });
     }
 }
