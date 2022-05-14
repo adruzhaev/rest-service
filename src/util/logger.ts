@@ -15,7 +15,8 @@ export const winstonLogger: Logger = winston.createLogger({
 });
 
 export const logger = (req: Request, res: Response, next: NextFunction) => {
-    winstonLogger.info(`${req.method}: ${req.path}`);
+    winstonLogger.info(`[REQUEST] ${req.method}: ${req.path}`);
+    winstonLogger.info(`[RESPONSE] ${res.statusCode}`);
 
     next();
 };
