@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { UserService } from '../services/user.service';
 import { HttpCode } from '../constants/http-code';
 import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
@@ -8,6 +8,8 @@ import { BaseController } from '../common/base.controller';
 import { toResponse } from '../common/user.response';
 import { IUser } from '../services/user.interface';
 import { winstonLogger } from '../util/logger';
+import { sign } from 'jsonwebtoken';
+import { AuthGuard } from '../middlewares/auth-guard';
 
 const querySchema = Joi.object({
     login: Joi.string().required(),
@@ -29,29 +31,37 @@ export class UserController extends BaseController implements IUserController {
             {
                 path: '/',
                 method: 'get',
-                func: this.getAllUsers
+                func: this.getAllUsers,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/:id',
                 method: 'get',
-                func: this.getOneUser
+                func: this.getOneUser,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/',
                 method: 'post',
                 func: this.createUser,
-                middlewares: [this.validator.body(querySchema)]
+                middlewares: [new AuthGuard().execute, this.validator.body(querySchema)]
             },
             {
                 path: '/:id',
                 method: 'put',
                 func: this.updateUser,
-                middlewares: [this.validator.body(querySchema)]
+                middlewares: [new AuthGuard().execute, this.validator.body(querySchema)]
             },
             {
                 path: '/:id',
                 method: 'delete',
-                func: this.deleteUser
+                func: this.deleteUser,
+                middlewares: [new AuthGuard().execute]
+            },
+            {
+                path: '/login',
+                method: 'post',
+                func: this.login
             }
         ]);
     }
@@ -115,5 +125,32 @@ export class UserController extends BaseController implements IUserController {
             const typedError = error as Error;
             return winstonLogger.error(`[deleteUser] args: ${req.params} message: ${typedError.message}`);
         }
+    }
+
+    async login(req: Request, res: Response, next: NextFunction) {
+        const jwt = await this.signJWT(req.body.login, req.body.password, 'secret');
+        return res.status(HttpCode.OK).json(jwt);
+    }
+
+    private signJWT(name: string, password: string, secret: string) {
+        return new Promise((resolve, reject) => {
+            sign(
+                {
+                    name,
+                    password
+                },
+                secret,
+                {
+                    algorithm: 'HS256'
+                },
+                (err, token) => {
+                    if (err) {
+                        reject(err);
+                    }
+
+                    resolve(token as string);
+                }
+            );
+        });
     }
 }

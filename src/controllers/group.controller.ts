@@ -6,6 +6,7 @@ import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
 import { IGroupController } from './group.controller.interface';
 import { BaseController } from '../common/base.controller';
 import { winstonLogger } from '../util/logger';
+import { AuthGuard } from '../middlewares/auth-guard';
 
 const querySchema = Joi.object({
     name: Joi.string().required(),
@@ -25,34 +26,38 @@ export class GroupController extends BaseController implements IGroupController 
             {
                 path: '/',
                 method: 'get',
-                func: this.getAllGroups
+                func: this.getAllGroups,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/:id',
                 method: 'get',
-                func: this.getOneGroup
+                func: this.getOneGroup,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/',
                 method: 'post',
                 func: this.createGroup,
-                middlewares: [this.validator.body(querySchema)]
+                middlewares: [new AuthGuard().execute, this.validator.body(querySchema)]
             },
             {
                 path: '/:id',
                 method: 'put',
                 func: this.updateGroup,
-                middlewares: [this.validator.body(querySchema)]
+                middlewares: [new AuthGuard().execute, this.validator.body(querySchema)]
             },
             {
                 path: '/:id',
                 method: 'delete',
-                func: this.deleteGroup
+                func: this.deleteGroup,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/addUsersToGroup',
                 method: 'post',
-                func: this.addUsersToGroup
+                func: this.addUsersToGroup,
+                middlewares: [new AuthGuard().execute]
             }
         ]);
     }
