@@ -4,6 +4,7 @@ import { UserController } from './controllers/user.controller';
 import { GroupController } from './controllers/group.controller';
 import { logger, winstonLogger } from './util/logger';
 import { exceptionFilter } from './util/exception-filter';
+import cors from 'cors';
 
 export class App {
     app: Express;
@@ -27,6 +28,7 @@ export class App {
     useMiddlewares() {
         this.app.use(express.json());
         this.app.use(logger);
+        this.app.use(cors());
     }
 
     useExceptionFilter() {
