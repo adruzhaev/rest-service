@@ -10,15 +10,16 @@ import { groupsMockData } from './util/groups-mock-data';
 import { createConnection } from 'typeorm';
 import { User } from './models/user.model';
 import { Group } from './models/group.model';
+import { ENV } from './constants/env';
 
 const bootstrap = async () => {
     await createConnection({
         type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'andrew',
-        password: 'new_password',
-        database: 'andrew',
+        host: ENV.HOST,
+        port: ENV.PORT,
+        username: ENV.USER_NAME,
+        password: ENV.PASSWORD,
+        database: ENV.DB,
         synchronize: true,
         entities: [User, Group]
     });
