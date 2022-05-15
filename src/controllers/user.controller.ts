@@ -8,7 +8,7 @@ import { BaseController } from '../common/base.controller';
 import { toResponse } from '../common/user.response';
 import { IUser } from '../services/user.interface';
 import { winstonLogger } from '../util/logger';
-import { Secret, sign } from 'jsonwebtoken';
+import { signJWT } from '../util/sign-jwt';
 import { AuthGuard } from '../middlewares/auth-guard';
 import { ENV } from '../constants/env';
 
@@ -131,29 +131,7 @@ export class UserController extends BaseController implements IUserController {
     async login(req: Request, res: Response, next: NextFunction) {
         console.log(ENV.SECRET);
 
-        const jwt = await this.signJWT(req.body.login, req.body.password, ENV.SECRET);
+        const jwt = await signJWT(req.body.login, req.body.password, ENV.SECRET);
         return res.status(HttpCode.OK).json(jwt);
-    }
-
-    private signJWT(name: string, password: string, secret: Secret) {
-        return new Promise((resolve, reject) => {
-            sign(
-                {
-                    name,
-                    password
-                },
-                secret,
-                {
-                    algorithm: 'HS256'
-                },
-                (err, token) => {
-                    if (err) {
-                        reject(err);
-                    }
-
-                    resolve(token as string);
-                }
-            );
-        });
     }
 }
