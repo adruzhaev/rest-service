@@ -8,8 +8,9 @@ import { BaseController } from '../common/base.controller';
 import { toResponse } from '../common/user.response';
 import { IUser } from '../services/user.interface';
 import { winstonLogger } from '../util/logger';
-import { sign } from 'jsonwebtoken';
+import { Secret, sign } from 'jsonwebtoken';
 import { AuthGuard } from '../middlewares/auth-guard';
+import { ENV } from '../constants/env';
 
 const querySchema = Joi.object({
     login: Joi.string().required(),
@@ -128,11 +129,13 @@ export class UserController extends BaseController implements IUserController {
     }
 
     async login(req: Request, res: Response, next: NextFunction) {
-        const jwt = await this.signJWT(req.body.login, req.body.password, 'secret');
+        console.log(ENV.SECRET);
+
+        const jwt = await this.signJWT(req.body.login, req.body.password, ENV.SECRET);
         return res.status(HttpCode.OK).json(jwt);
     }
 
-    private signJWT(name: string, password: string, secret: string) {
+    private signJWT(name: string, password: string, secret: Secret) {
         return new Promise((resolve, reject) => {
             sign(
                 {
