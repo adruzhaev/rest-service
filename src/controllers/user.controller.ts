@@ -129,9 +129,14 @@ export class UserController extends BaseController implements IUserController {
     }
 
     async login(req: Request, res: Response, next: NextFunction) {
-        console.log(ENV.SECRET);
+        try {
+            await this.userService.validate(req.body.login, req.body.password);
 
-        const jwt = await signJWT(req.body.login, req.body.password, ENV.SECRET);
-        return res.status(HttpCode.OK).json(jwt);
+            const jwt = await signJWT(req.body.login, req.body.password, ENV.SECRET);
+            return res.status(HttpCode.OK).json(jwt);
+        } catch (error) {
+            const typedError = error as Error;
+            return winstonLogger.error(`[login] args: ${req.params} message: ${typedError.message}`);
+        }
     }
 }

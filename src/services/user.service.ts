@@ -59,4 +59,14 @@ export class UserService {
 
         return await this.userRepository.softDelete(id);
     }
+
+    async validate(login: string, password: string) {
+        const existedUser = await this.userRepository.getOneByLogin(login, password);
+
+        if (!existedUser) {
+            throw new HTTPError(HttpCode.NOT_FOUND, 'User is not found');
+        }
+
+        return true;
+    }
 }
