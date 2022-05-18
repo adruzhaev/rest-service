@@ -1,10 +1,12 @@
 import * as Joi from 'joi';
 import { NextFunction, Request, Response } from 'express';
 import { GroupService } from '../services/group.service';
-import { HttpCode } from '../util/const';
+import { HttpCode } from '../constants/http-code';
 import { createValidator, ExpressJoiInstance } from 'express-joi-validation';
 import { IGroupController } from './group.controller.interface';
 import { BaseController } from '../common/base.controller';
+import { winstonLogger } from '../util/logger';
+import { AuthGuard } from '../middlewares/auth-guard';
 
 const querySchema = Joi.object({
     name: Joi.string().required(),
@@ -24,80 +26,103 @@ export class GroupController extends BaseController implements IGroupController 
             {
                 path: '/',
                 method: 'get',
-                func: this.getAllGroups
+                func: this.getAllGroups,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/:id',
                 method: 'get',
-                func: this.getOneGroup
+                func: this.getOneGroup,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/',
                 method: 'post',
                 func: this.createGroup,
-                middlewares: [this.validator.body(querySchema)]
+                middlewares: [new AuthGuard().execute, this.validator.body(querySchema)]
             },
             {
                 path: '/:id',
                 method: 'put',
                 func: this.updateGroup,
-                middlewares: [this.validator.body(querySchema)]
+                middlewares: [new AuthGuard().execute, this.validator.body(querySchema)]
             },
             {
                 path: '/:id',
                 method: 'delete',
-                func: this.deleteGroup
+                func: this.deleteGroup,
+                middlewares: [new AuthGuard().execute]
             },
             {
                 path: '/addUsersToGroup',
                 method: 'post',
-                func: this.addUsersToGroup
+                func: this.addUsersToGroup,
+                middlewares: [new AuthGuard().execute]
             }
         ]);
     }
 
     async getAllGroups(req: Request, res: Response) {
-        const groups = await this.groupService.getAll();
-        return res.status(HttpCode.OK).json(groups);
+        try {
+            const groups = await this.groupService.getAll();
+            return res.status(HttpCode.OK).json(groups);
+        } catch (error) {
+            const typedError = error as Error;
+            return winstonLogger.error(`[getAllGroups] args: ${req.params} message: ${typedError.message}`);
+        }
     }
 
     async getOneGroup(req: Request, res: Response) {
-        const { id } = req.params;
-        const oneGroup = await this.groupService.getOne(id);
-        return res.status(HttpCode.OK).json(oneGroup);
+        try {
+            const { id } = req.params;
+            const oneGroup = await this.groupService.getOne(id);
+            return res.status(HttpCode.OK).json(oneGroup);
+        } catch (error) {
+            const typedError = error as Error;
+            return winstonLogger.error(`[getOneGroup] args: ${req.params} message: ${typedError.message}`);
+        }
     }
 
     async createGroup(req: Request, res: Response) {
-        const group = await this.groupService.create(req.body);
-        return res.status(HttpCode.CREATED).json(group);
+        try {
+            const group = await this.groupService.create(req.body);
+            return res.status(HttpCode.CREATED).json(group);
+        } catch (error) {
+            const typedError = error as Error;
+            return winstonLogger.error(`[createGroup] args: ${req.params} message: ${typedError.message}`);
+        }
     }
 
     async updateGroup(req: Request, res: Response, next: NextFunction) {
-        const { id } = req.params;
-
         try {
+            const { id } = req.params;
             const updatedGroup = await this.groupService.update(id, req.body);
             return res.status(HttpCode.OK).json(updatedGroup);
         } catch (error) {
-            return next(error);
+            const typedError = error as Error;
+            return winstonLogger.error(`[updateGroup] args: ${req.params} message: ${typedError.message}`);
         }
     }
 
     async deleteGroup(req: Request, res: Response) {
-        const { id } = req.params;
-        const deletedGroup = await this.groupService.delete(id);
-
-        if (!deletedGroup) {
-            return res.status(HttpCode.NOT_FOUND).send('Group is not found');
+        try {
+            const { id } = req.params;
+            const deletedGroup = await this.groupService.delete(id);
+            return res.status(HttpCode.OK).json(deletedGroup);
+        } catch (error) {
+            const typedError = error as Error;
+            return winstonLogger.error(`[deleteGroup] args: ${req.params} message: ${typedError.message}`);
         }
-
-        return res.status(HttpCode.OK).json(deletedGroup);
     }
 
     async addUsersToGroup(req: Request, res: Response) {
-        const { groupId, userIds } = req.body;
-
-        const group = await this.groupService.addUsersToGroup(groupId, userIds);
-        return res.status(HttpCode.CREATED).json(group);
+        try {
+            const { groupId, userIds } = req.body;
+            const group = await this.groupService.addUsersToGroup(groupId, userIds);
+            return res.status(HttpCode.CREATED).json(group);
+        } catch (error) {
+            const typedError = error as Error;
+            return winstonLogger.error(`[addUsersToGroup] args: ${req.params} message: ${typedError.message}`);
+        }
     }
 }
