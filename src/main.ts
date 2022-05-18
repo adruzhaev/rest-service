@@ -12,6 +12,7 @@ import { User } from './models/user.model';
 import { Group } from './models/group.model';
 import { ENV } from './constants/env';
 import { UserRepository } from './repository/user.repositoty';
+import { GroupRepository } from './repository/group.repostitory';
 
 const bootstrap = async () => {
     await createConnection({
@@ -27,7 +28,12 @@ const bootstrap = async () => {
 
     const app = new App(new UserController(
         new UserService(usersMockData, getConnection().getCustomRepository(UserRepository))),
-    new GroupController(new GroupService(groupsMockData))
+    new GroupController(
+        new GroupService(
+            groupsMockData,
+            getConnection().getCustomRepository(GroupRepository),
+            getConnection().getCustomRepository(UserRepository)
+        ))
     );
     await app.init();
 };
