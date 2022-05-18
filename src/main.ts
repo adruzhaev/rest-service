@@ -7,10 +7,11 @@ import { GroupController } from './controllers/group.controller';
 import { GroupService } from './services/group.service';
 import { usersMockData } from './util/users-mock-data';
 import { groupsMockData } from './util/groups-mock-data';
-import { createConnection } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 import { User } from './models/user.model';
 import { Group } from './models/group.model';
 import { ENV } from './constants/env';
+import { UserRepository } from './repository/user.repositoty';
 
 const bootstrap = async () => {
     await createConnection({
@@ -24,7 +25,10 @@ const bootstrap = async () => {
         entities: [User, Group]
     });
 
-    const app = new App(new UserController(new UserService(usersMockData)), new GroupController(new GroupService(groupsMockData)));
+    const app = new App(new UserController(
+        new UserService(usersMockData, getConnection().getCustomRepository(UserRepository))),
+    new GroupController(new GroupService(groupsMockData))
+    );
     await app.init();
 };
 

@@ -1,50 +1,98 @@
-import express from 'express';
-import { Connection, createConnection } from 'typeorm';
-import { UserService } from '../services/user.service';
-import { Express } from 'express-serve-static-core';
-import { ENV } from '../constants/env';
-import { Group } from '../models/group.model';
 import { User } from '../models/user.model';
-import { UserController } from '../controllers/user.controller';
-import { usersMockData } from '../util/users-mock-data';
+import { UserRepository } from '../repository/user.repositoty';
+import { IUser } from '../services/user.interface';
+import { UserService } from '../services/user.service';
 
-let app: Express;
 let userService: UserService;
-let userController: UserController;
-let connection: Connection;
 let result;
 
-describe('User', () => {
-    beforeEach(async () => {
-        connection = await createConnection({
-            type: 'postgres',
-            host: ENV.HOST,
-            port: ENV.PORT,
-            username: ENV.USER_NAME,
-            password: ENV.PASSWORD,
-            database: ENV.DB,
-            synchronize: true,
-            entities: [User, Group]
+const mockData: Array<User> = [
+    {
+        'id': '1',
+        'login': 'Mark',
+        'password': 'ssfasd',
+        'deletedAt': null,
+        'age': 33
+    },
+    {
+        'id': '2',
+        'login': 'Maria',
+        'password': '123',
+        'deletedAt': null,
+        'age': 22
+    }
+];
+
+const UsersRepositoryMock = {
+    find: jest.fn(),
+    getOne: jest.fn(),
+    save: jest.fn(),
+    softDelete: jest.fn()
+};
+
+beforeEach(() => {
+    userService = new UserService(mockData, UsersRepositoryMock as unknown as UserRepository);
+});
+
+describe('User service methods', () => {
+    test('get all users', async () => {
+        UsersRepositoryMock.find = jest.fn().mockImplementationOnce(
+            () => (mockData),
+        );
+
+        result = await userService.getAll();
+        expect(result.length).toBe(2);
+    });
+
+    test('get one user', async () => {
+        UsersRepositoryMock.getOne = jest.fn().mockImplementationOnce(
+            (id: string) => (Object.assign({}, ...mockData.filter((item) => item.id === id)))
+        );
+
+        result = await userService.getOne('1');
+        expect(result.id).toEqual('1');
+    });
+
+    test('create user', async () => {
+        UsersRepositoryMock.save = jest.fn().mockImplementationOnce(
+            (user: User) => ({
+                id: user.id,
+                login: user.login,
+                password: user.password,
+                age: user.age,
+                deletedAt: user.deletedAt
+            })
+        );
+
+        result = await userService.create({
+            id: '1',
+            login: 'Andrew',
+            password: '123',
+            age: 22,
+            deletedAt: new Date()
         });
 
-        userService = new UserService(usersMockData);
-        userController = new UserController(userService);
-        app = express();
-        app.use(express.json());
-        app.use('/users', userController.router);
+        expect(result.id).toEqual('1');
+        expect(result.login).toEqual('Andrew');
     });
 
-    afterEach(() => {
-        connection.close();
-    });
+    test('delete user', async () => {
+        UsersRepositoryMock.getOne = jest.fn().mockImplementationOnce(
+            (id: string) => (Object.assign({}, ...mockData.filter((item) => item.id === id)))
+        );
 
-    test('get all users', async () => {
-        result = await userService.getAll();
-        expect(result.length).toBe(11);
-    });
+        UsersRepositoryMock.softDelete = jest.fn().mockImplementationOnce(
+            (id: string): User => {
+                const userToDelete: IUser = Object.assign({}, ...mockData.filter((item) => item.id === id));
+                return {
+                    ...userToDelete,
+                    deletedAt: new Date('2022-05-18T17:10:28.517Z')
+                };
+            }
+        );
 
-    test('get user by id', async () => {
-        result = await userService.getOne('6');
-        expect(result.id).toBe(6);
+        const user = await userService.delete('1') as unknown as User;
+        expect(user.deletedAt).toEqual(new Date('2022-05-18T17:10:28.517Z'));
     });
 });
+
