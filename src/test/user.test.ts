@@ -27,7 +27,10 @@ const UsersRepositoryMock = {
     find: jest.fn(),
     getOne: jest.fn(),
     save: jest.fn(),
-    softDelete: jest.fn()
+    update: jest.fn(),
+    softDelete: jest.fn(),
+    getAutoSuggestUsers: jest.fn(),
+    getOneByLogin: jest.fn()
 };
 
 beforeEach(() => {
@@ -53,6 +56,16 @@ describe('User service methods', () => {
         expect(result.id).toEqual('1');
     });
 
+    test('get auto suggest user', async () => {
+        UsersRepositoryMock.getAutoSuggestUsers = jest.fn().mockImplementationOnce(
+            (loginSubstring: string, limit: string) => (mockData.slice(Number(limit)).filter((item) =>
+                item.login.includes(loginSubstring)))
+        );
+
+        result = await userService.getAutoSuggestUsers('Mar', '1');
+        expect(result.length).toEqual(1);
+    });
+
     test('create user', async () => {
         UsersRepositoryMock.save = jest.fn().mockImplementationOnce(
             (user: User) => ({
@@ -76,6 +89,28 @@ describe('User service methods', () => {
         expect(result.login).toEqual('Andrew');
     });
 
+    test('update user', async () => {
+        UsersRepositoryMock.getOne = jest.fn().mockImplementationOnce(
+            (id: string) => (Object.assign({}, ...mockData.filter((item) => item.id === id)))
+        );
+
+        UsersRepositoryMock.update = jest.fn().mockImplementationOnce(
+            (id: string, user: User) => ({
+                id,
+                login: user.login,
+                password: user.password,
+                age: user.age,
+                deletedAt: user.deletedAt
+            })
+        );
+
+        result = await userService.update('1', {
+            login: 'Artem'
+        } as IUser) as unknown as User;
+
+        expect(result.login).toEqual('Artem');
+    });
+
     test('delete user', async () => {
         UsersRepositoryMock.getOne = jest.fn().mockImplementationOnce(
             (id: string) => (Object.assign({}, ...mockData.filter((item) => item.id === id)))
@@ -93,6 +128,16 @@ describe('User service methods', () => {
 
         const user = await userService.delete('1') as unknown as User;
         expect(user.deletedAt).toEqual(new Date('2022-05-18T17:10:28.517Z'));
+    });
+
+    test('get one user by login', async () => {
+        UsersRepositoryMock.getOneByLogin = jest.fn().mockImplementationOnce(
+            (login: string, password: string) => (Object.assign({}, ...mockData.filter((item) =>
+                item.login === login && item.password === password)))
+        );
+
+        const user = userService.validate('Maria', '123');
+        expect(user).toBeTruthy();
     });
 });
 
