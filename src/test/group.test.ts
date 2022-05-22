@@ -23,7 +23,8 @@ const GroupRepositoryMock = {
     find: jest.fn(),
     getOne: jest.fn(),
     save: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
+    update: jest.fn()
 };
 
 const UsersRepositoryMock = {};
@@ -79,5 +80,27 @@ describe('Group service methods', () => {
 
         const groups = await groupService.delete('1') as unknown as Group[];
         expect(groups.length).toBe(1);
+    });
+
+    test('update group', async () => {
+        GroupRepositoryMock.getOne = jest.fn().mockImplementationOnce(
+            (id: string) => (Object.assign({}, ...mockData.filter((item) => item.id === id)))
+        );
+
+        GroupRepositoryMock.update = jest.fn().mockImplementationOnce(
+            (id: string, group: Group) => ({
+                id,
+                name: group.name,
+                permissions: group.permissions
+            })
+        );
+
+        const result = await groupService.update('1', {
+            name: 'Group_2',
+            permissions: ['READ']
+        } as IGroup) as unknown as Group;
+
+        expect(result.name).toEqual('Group_2');
+        expect(result.permissions.length).toEqual(1);
     });
 });
