@@ -10,12 +10,12 @@ export class UserService {
     users: IUser[];
     userRepository: UserRepository;
 
-    constructor(users: IUser[]) {
+    constructor(users: IUser[], userRepository: UserRepository) {
         this.users = users.map(userService => {
             return Object.assign({}, { id: userService.id, age: userService.age, login: userService.login, password: userService.password });
         });
 
-        this.userRepository = getConnection().getCustomRepository(UserRepository);
+        this.userRepository = userRepository;
     }
 
     async create(user: User) {

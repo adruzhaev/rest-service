@@ -15,5 +15,5 @@ export class User {
         age: number;
 
     @DeleteDateColumn({ default: null })
-        deletedAt: Date;
+        deletedAt: Date | null;
 }

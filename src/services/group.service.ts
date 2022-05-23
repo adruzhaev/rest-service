@@ -12,10 +12,10 @@ export class GroupService {
     groupRepository: GroupRepository;
     userRepository: UserRepository;
 
-    constructor(groups: IGroup[]) {
+    constructor(groups: IGroup[], groupRepository: GroupRepository, userRepository: UserRepository) {
         this.groups = groups;
-        this.groupRepository = getConnection().getCustomRepository(GroupRepository);
-        this.userRepository = getConnection().getCustomRepository(UserRepository);
+        this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
     }
 
     async create(group: Group) {
